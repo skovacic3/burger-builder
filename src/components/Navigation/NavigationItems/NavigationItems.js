@@ -5,10 +5,10 @@ import NavigationItem from './NavigationItem/NavigationItem';
 
 const navigationItems = props => {
     return (
-            <ul className="NavigationItems">
-                <NavigationItem link="/" active>Burger Builder</NavigationItem>
-                <NavigationItem link="/">Checkout</NavigationItem>
-            </ul>
+        <ul className="NavigationItems">
+            <NavigationItem link="/" active>Burger Builder</NavigationItem>
+            <NavigationItem link="/">Checkout</NavigationItem>
+        </ul>
     );
 };
 

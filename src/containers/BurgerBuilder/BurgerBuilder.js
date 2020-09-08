@@ -4,11 +4,12 @@ import Auxiliary from '../../hoc/Auxiliary';
 import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
-import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary'
+import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
+import axios from '../../axios-orders';
 
 const INGREDIENT_PRICES = {
-    salad : 1,
-    cheese : 0.5,
+    salad: 1,
+    cheese: 0.5,
     meat: 2,
     bacon: 0.2
 };
@@ -34,7 +35,7 @@ class BurgerBuilder extends Component {
             .reduce((sum, element) => {
                 return sum + element;
             }, 0);
-        this.setState({purchasable: sum > 0});
+        this.setState({ purchasable: sum > 0 });
     }
 
     addIngredientHandler = type => {
@@ -46,13 +47,13 @@ class BurgerBuilder extends Component {
         updatedIngredient[type] = updatedCount;
         const oldPrice = this.state.totalPrice;
         const newPrice = oldPrice + INGREDIENT_PRICES[type]
-        this.setState({totalPrice : newPrice, ingredients: updatedIngredient});
+        this.setState({ totalPrice: newPrice, ingredients: updatedIngredient });
         this.updatePurchaseState(updatedIngredient);
     }
-    
+
     removeIngredientHandler = type => {
         const oldCount = this.state.ingredients[type];
-        if(oldCount !== 0){
+        if (oldCount !== 0) {
             const updatedCount = oldCount - 1;
             const updatedIngredient = {
                 ...this.state.ingredients
@@ -60,36 +61,51 @@ class BurgerBuilder extends Component {
             updatedIngredient[type] = updatedCount;
             const oldPrice = this.state.totalPrice;
             const newPrice = oldPrice - INGREDIENT_PRICES[type]
-            this.setState({totalPrice : newPrice, ingredients: updatedIngredient});
+            this.setState({ totalPrice: newPrice, ingredients: updatedIngredient });
             this.updatePurchaseState(updatedIngredient);
 
         }
     }
 
     purchaseHandler = () => {
-        this.setState({purchasing: true});
+        this.setState({ purchasing: true });
     }
 
     PurchaseCancleHandler = () => {
-        this.setState({purchasing: false});
+        this.setState({ purchasing: false });
     }
 
     purchaseContinueHandler = () => {
-        alert('continue');
+        const order = {
+            ingredients: this.state.ingredients,
+            price: this.state.totalPrice,
+            customer: {
+                name: "Sven Kovacic",
+                address: {
+                    street: 'This 01',
+                    zipCode: '12412',
+                    country: 'Croatia'
+                },
+                email: 'test@test.com'
+            }
+        }
+        axios.post('/orders.json', order)
+            .then(response => console.log(response))
+            .catch(error => console.log(error));
     }
 
-    render () {
-        return(
+    render() {
+        return (
             <Auxiliary>
                 <Modal show={this.state.purchasing} modalClosed={this.PurchaseCancleHandler}>
-                    <OrderSummary 
-                    ingredients={this.state.ingredients}
-                    purchaseCancelled={this.PurchaseCancleHandler}
-                    purchaseContinue={this.purchaseContinueHandler}
-                    price={this.state.totalPrice} />
+                    <OrderSummary
+                        ingredients={this.state.ingredients}
+                        purchaseCancelled={this.PurchaseCancleHandler}
+                        purchaseContinue={this.purchaseContinueHandler}
+                        price={this.state.totalPrice} />
                 </Modal>
                 <Burger ingredients={this.state.ingredients} />
-                <BuildControls 
+                <BuildControls
                     more={this.addIngredientHandler}
                     less={this.removeIngredientHandler}
                     price={this.state.totalPrice}
